@@ -15,7 +15,7 @@ import javax.net.ssl.SSLSocketFactory;
  */
 public class JavaSSLClient {
 
-    static final int port = 8000;
+    static final int port = 8001;
 
     public static void main(String[] args) {
 

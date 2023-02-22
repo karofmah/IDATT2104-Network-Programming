@@ -1,13 +1,13 @@
 package taskone;
 
-import java.io.*;
-import java.net.*;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 
 public class CalculatorServerThread extends Thread {
-    final int PORTNR = 4445;
-    DatagramSocket tjener;
+    final int PORT = 4445;
     private byte[] buffer=new byte[256];
     DatagramSocket socket;
     int firstNumber;
@@ -15,52 +15,71 @@ public class CalculatorServerThread extends Thread {
     String operator;
 
     public CalculatorServerThread() throws SocketException {
-        socket=new DatagramSocket(PORTNR);
+            socket=new DatagramSocket(PORT);
+
+
     }
-    public String getNextAnswer() throws IOException {
-        Scanner scanner = new Scanner(System.in);
+    public String calculateAnswer(String calculation) throws IOException {
 
-        System.out.println("Write first number");
-        int firstNumber = Integer.parseInt(scanner.nextLine());
-        this.firstNumber=firstNumber;
-        System.out.println("Write '+' or '-'");
-        String operator=scanner.nextLine();
-        this.operator=operator;
-        System.out.println("Write second number");
-        int secondNumber = Integer.parseInt(scanner.nextLine());
-        this.secondNumber=secondNumber;
-        if(operator.equals("+")){
-            return String.valueOf((firstNumber + secondNumber));
-        }else{
-            return String.valueOf((firstNumber -  secondNumber));
+        try {
+           char[] list=calculation.toCharArray();
+
+            for (int i = 0; i < list.length; i++) {
+                if(list[i]=='+' || list[i]=='-'|| list[i]=='*' || list[i]=='/') {
+                    firstNumber=Integer.parseInt(calculation.substring(0, i));
+                    operator=String.valueOf(calculation.charAt(i));
+                    secondNumber=Integer.parseInt(calculation.substring(i + 1));
+                }
+            }
+
+
+            switch (operator){
+                case "+":
+                    return String.valueOf((firstNumber + secondNumber));
+
+                case "-":
+                    return String.valueOf((firstNumber - secondNumber));
+
+                case "*":
+                    System.out.println(secondNumber);
+                    return String.valueOf((firstNumber * secondNumber));
+
+                case "/":
+                    return String.valueOf((firstNumber / secondNumber));
+
+                default:
+                    System.out.println("Please write valid input");
+            }
+
+
+        } catch (NumberFormatException e) {
+            System.out.println("Please write an integer");
         }
-
+        return "";
     }
     @Override
     public void run() {
-        DatagramPacket packet = null;
 
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         try {
-            packet = new DatagramPacket(buffer, buffer.length);
             socket.receive(packet);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String dString="";
+        String received = new String(packet.getData(), 0, packet.getLength());
+
+        String answer="";
 
             try {
-                dString = getNextAnswer();
+                answer = calculateAnswer(received);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            buffer = dString.getBytes();
-
+            buffer = answer.getBytes();
+        System.out.println(answer);
         InetAddress address = packet.getAddress();
         int port = packet.getPort();
-
-        String received = new String(packet.getData(), 0, packet.getLength());
 
         packet = new DatagramPacket(buffer, buffer.length, address, port);
         try {
@@ -68,10 +87,6 @@ public class CalculatorServerThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String sent = new String(packet.getData(), 0, packet.getLength());
-        System.out.println( firstNumber + " " + operator + " " + secondNumber + " = "  + sent);
-
-
         socket.close();
     }
 }
