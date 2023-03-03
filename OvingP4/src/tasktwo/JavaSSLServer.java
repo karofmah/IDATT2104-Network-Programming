@@ -15,7 +15,7 @@ import javax.net.ssl.SSLServerSocketFactory;
  */
 public class JavaSSLServer {
 
-    static final int port = 8001;
+    static final int port = 8000;
 
     public static void main(String[] args) {
 
