@@ -1,9 +1,6 @@
 package p5.backend.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.origin.Origin;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,8 +14,7 @@ import p5.backend.service.SourceCodeService;
 
 public class SourceCodeController {
 
-    private static final Logger _logger =
-            LoggerFactory.getLogger(SourceCodeController.class);
+
 
     private SourceCodeService sourceCodeService;
 
@@ -28,9 +24,7 @@ public class SourceCodeController {
     }
 
     @PostMapping("/post")
-
     public String posted(@RequestBody SourceCode sourceCode) {
-        _logger.info(sourceCode.getSourceCode());
             return sourceCodeService.runAndCompile(sourceCode);
     }
 }
